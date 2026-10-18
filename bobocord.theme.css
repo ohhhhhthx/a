@@ -1,0 +1,557 @@
+/**
+ * @name Bobocord
+ * @author Claude
+ * @version 1.0.0
+ * @description Monochrome Liquid Glass for Discord. Animated depth behind translucent panes, Apple HIG typography, continuous corners and motion. Dark and light follow your Discord theme.
+ * @source
+ * @website
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+/* ==========================================================================
+   1. TOKENS  —  edit the "Tweakables" block to tune the look
+   ========================================================================== */
+
+:root {
+  /* ---- Tweakables ---- */
+  --lg-blur: 30px;            /* glass blur. Lower = faster on weak GPUs      */
+  --lg-brightness: 1.08;      /* how much glass lifts what is behind it       */
+  --lg-speed: 1;              /* background drift. 2 = twice as slow, 0.5 = faster */
+  --lg-brand-name: "bobocord"; /* replaces the Discord wordmark and loading text */
+  --lg-brand-mark: "b";        /* replaces the Discord logo on the home button   */
+  --lg-danger: 255 105 97;    /* only colour left in the UI: destructive actions.
+                                 Set to "255 255 255" for strict monochrome.   */
+
+  /* Concentric radii, Apple style: outer > inner > control */
+  --lg-r-xl: 28px;
+  --lg-r-l: 20px;
+  --lg-r-m: 14px;
+  --lg-r-s: 10px;
+
+  /* ---- Type ---- */
+  --lg-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", "Segoe UI Variable Text", system-ui, sans-serif;
+  --lg-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  --lg-ease: cubic-bezier(0.25, 1, 0.5, 1);
+
+  /* ---- Dark palette (default) ---- */
+  --lg-fg: 255 255 255;       /* ink, as an rgb triplet                        */
+  --lg-bg: 0 0 0;             /* inverse of ink                                */
+  --lg-base: #050505;
+  --lg-accent: 140 140 140;   /* switches, checkboxes, selection               */
+
+  --lg-orb-a: rgb(255 255 255 / 0.26);
+  --lg-orb-b: rgb(255 255 255 / 0.13);
+  --lg-orb-c: rgb(190 190 190 / 0.18);
+
+  --lg-fill-rail: rgb(0 0 0 / 0.40);
+  --lg-fill-side: rgb(24 24 24 / 0.36);
+  --lg-fill-main: rgb(10 10 10 / 0.56);
+  --lg-fill-float: rgb(34 34 34 / 0.58);
+
+  --lg-label:   rgb(var(--lg-fg) / 0.96);
+  --lg-label-2: rgb(var(--lg-fg) / 0.70);
+  --lg-label-3: rgb(var(--lg-fg) / 0.50);
+  --lg-label-4: rgb(var(--lg-fg) / 0.26);
+
+  --lg-hairline: rgb(var(--lg-fg) / 0.12);
+  --lg-specular: rgb(255 255 255 / 0.34);
+  --lg-drop: rgb(0 0 0 / 0.45);
+
+  /* Frosted grain, white specks */
+  --lg-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 .9 0 0 0 -.36'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E");
+
+  /* Light catching the surface: a diagonal sheen */
+  --lg-sheen: linear-gradient(155deg, rgb(var(--lg-fg) / 0.10) 0%, rgb(var(--lg-fg) / 0.025) 38%, transparent 62%, rgb(var(--lg-fg) / 0.05) 100%);
+
+  /* Thick-glass rim: bright top edge, hairline ring, soft inner glow */
+  --lg-edge:
+    inset 0 1px 0 0 var(--lg-specular),
+    inset 0 0 0 1px var(--lg-hairline),
+    inset 0 14px 28px -16px rgb(var(--lg-fg) / 0.10),
+    inset 0 -14px 28px -18px rgb(var(--lg-fg) / 0.05);
+  --lg-lift: 0 12px 40px -8px var(--lg-drop), 0 2px 6px rgb(0 0 0 / 0.25);
+}
+
+html.theme-light {
+  --lg-fg: 0 0 0;
+  --lg-bg: 255 255 255;
+  --lg-base: #e7e7e7;
+  --lg-accent: 28 28 28;
+  --lg-danger: 215 0 21;
+
+  --lg-orb-a: rgb(255 255 255 / 0.95);
+  --lg-orb-b: rgb(0 0 0 / 0.09);
+  --lg-orb-c: rgb(255 255 255 / 0.70);
+
+  --lg-fill-rail: rgb(255 255 255 / 0.30);
+  --lg-fill-side: rgb(255 255 255 / 0.42);
+  --lg-fill-main: rgb(255 255 255 / 0.66);
+  --lg-fill-float: rgb(255 255 255 / 0.74);
+
+  --lg-label:   rgb(0 0 0 / 0.88);
+  --lg-label-2: rgb(0 0 0 / 0.62);
+  --lg-label-3: rgb(0 0 0 / 0.46);
+  --lg-label-4: rgb(0 0 0 / 0.26);
+
+  --lg-hairline: rgb(0 0 0 / 0.08);
+  --lg-specular: rgb(255 255 255 / 0.95);
+  --lg-drop: rgb(0 0 0 / 0.16);
+
+  --lg-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .9 0 0 0 -.38'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+
+  --lg-sheen: linear-gradient(155deg, rgb(255 255 255 / 0.55) 0%, rgb(255 255 255 / 0.12) 38%, transparent 62%, rgb(255 255 255 / 0.25) 100%);
+  --lg-edge:
+    inset 0 1px 0 0 var(--lg-specular),
+    inset 0 0 0 1px var(--lg-hairline),
+    inset 0 14px 28px -16px rgb(255 255 255 / 0.55),
+    inset 0 -14px 28px -18px rgb(0 0 0 / 0.04);
+}
+
+/* Respect "Reduce transparency": solid surfaces, no blur */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --lg-blur: 0px;
+    --lg-fill-rail: #0b0b0b;
+    --lg-fill-side: #121212;
+    --lg-fill-main: #181818;
+    --lg-fill-float: #222;
+  }
+  html.theme-light {
+    --lg-fill-rail: #dcdcdc;
+    --lg-fill-side: #e6e6e6;
+    --lg-fill-main: #f4f4f4;
+    --lg-fill-float: #fff;
+  }
+}
+
+/* ==========================================================================
+   2. DISCORD VARIABLES  —  re-skin everything that reads from them
+   ========================================================================== */
+
+.theme-dark, .theme-darker, .theme-midnight, .theme-light {
+  /* Layers: base layers are transparent so the animated canvas shows through */
+  --background-base-lowest: transparent;
+  --background-base-lower: transparent;
+  --background-base-low: transparent;
+  --background-surface-high: var(--lg-fill-float);
+  --background-surface-higher: var(--lg-fill-float);
+  --background-surface-highest: var(--lg-fill-float);
+  --chat-background-default: transparent;
+  --background-primary: transparent;
+  --background-secondary: transparent;
+  --background-secondary-alt: transparent;
+  --background-tertiary: transparent;
+  --background-floating: var(--lg-fill-float);
+  --background-accent: rgb(var(--lg-fg) / 0.12);
+  --bg-overlay-app-frame: transparent;
+  --bg-overlay-chat: transparent;
+  --bg-overlay-1: transparent;
+  --bg-overlay-2: transparent;
+  --bg-overlay-3: transparent;
+  --bg-overlay-4: transparent;
+  --bg-overlay-5: transparent;
+  --bg-overlay-6: transparent;
+  --app-frame-background: transparent;
+
+  /* States */
+  --background-modifier-hover: rgb(var(--lg-fg) / 0.07);
+  --background-modifier-active: rgb(var(--lg-fg) / 0.11);
+  --background-modifier-selected: rgb(var(--lg-fg) / 0.14);
+  --background-modifier-accent: rgb(var(--lg-fg) / 0.10);
+  --background-message-hover: rgb(var(--lg-fg) / 0.045);
+  --channeltextarea-background: rgb(var(--lg-fg) / 0.07);
+  --input-background: rgb(var(--lg-fg) / 0.07);
+  --background-code: rgb(var(--lg-fg) / 0.07);
+  --deprecated-card-bg: rgb(var(--lg-fg) / 0.05);
+  --deprecated-store-bg: transparent;
+
+  /* Text: Apple's label hierarchy */
+  --text-default: var(--lg-label);
+  --text-normal: var(--lg-label);
+  --text-strong: var(--lg-label);
+  --text-muted: var(--lg-label-3);
+  --text-subtle: var(--lg-label-3);
+  --header-primary: var(--lg-label);
+  --header-secondary: var(--lg-label-2);
+  --interactive-normal: var(--lg-label-2);
+  --interactive-hover: var(--lg-label);
+  --interactive-active: var(--lg-label);
+  --interactive-muted: var(--lg-label-4);
+  --channels-default: var(--lg-label-3);
+  --text-link: var(--lg-label);
+  --text-brand: var(--lg-label);
+  --focus-primary: rgb(var(--lg-fg) / 0.65);
+
+  /* Borders */
+  --border-faint: rgb(var(--lg-fg) / 0.06);
+  --border-subtle: rgb(var(--lg-fg) / 0.10);
+  --border-normal: rgb(var(--lg-fg) / 0.16);
+  --border-strong: rgb(var(--lg-fg) / 0.24);
+
+  /* Brand becomes a neutral. Buttons get an explicit override further down */
+  --brand-experiment: rgb(var(--lg-accent));
+  --brand-260: rgb(var(--lg-accent)); --brand-300: rgb(var(--lg-accent));
+  --brand-360: rgb(var(--lg-accent)); --brand-400: rgb(var(--lg-accent));
+  --brand-430: rgb(var(--lg-accent)); --brand-460: rgb(var(--lg-accent));
+  --brand-500: rgb(var(--lg-accent)); --brand-530: rgb(var(--lg-accent));
+  --brand-560: rgb(var(--lg-accent)); --brand-600: rgb(var(--lg-accent));
+  --brand-630: rgb(var(--lg-accent)); --brand-660: rgb(var(--lg-accent));
+  --brand-700: rgb(var(--lg-accent)); --brand-730: rgb(var(--lg-accent));
+  --brand-760: rgb(var(--lg-accent));
+
+  /* Presence: shapes already carry the meaning, so colour is not needed */
+  --status-online: rgb(var(--lg-fg));
+  --status-idle: rgb(var(--lg-fg) / 0.72);
+  --status-dnd: rgb(var(--lg-fg) / 0.55);
+  --status-offline: rgb(var(--lg-fg) / 0.35);
+  --status-positive: rgb(var(--lg-fg) / 0.9);
+  --status-warning: rgb(var(--lg-fg) / 0.7);
+  --status-danger: rgb(var(--lg-danger));
+
+  /* Type */
+  --font-primary: var(--lg-font);
+  --font-display: var(--lg-font);
+  --font-headline: var(--lg-font);
+  --font-code: var(--lg-mono);
+}
+
+/* ==========================================================================
+   3. ANIMATED CANVAS  —  two slow, counter-drifting light fields
+   Sharp-edged discs on purpose: the glass blurs them into soft refraction
+   where they pass behind a pane, and they stay crisp in the gaps.
+   ========================================================================== */
+
+html { background: var(--lg-base) !important; }
+body { background: transparent !important; }
+#app-mount { background: transparent !important; }
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: -28%;
+  z-index: -1;
+  pointer-events: none;
+  will-change: transform;
+}
+
+body::before {
+  background:
+    radial-gradient(circle at 22% 30%, var(--lg-orb-a) 0 9%, transparent 9.4%),
+    radial-gradient(circle at 78% 22%, var(--lg-orb-b) 0 13%, transparent 13.4%),
+    radial-gradient(circle at 64% 78%, var(--lg-orb-c) 0 7%, transparent 7.4%),
+    radial-gradient(50% 50% at 30% 70%, var(--lg-orb-b), transparent 70%);
+  animation: lg-drift-a calc(52s * var(--lg-speed)) ease-in-out infinite alternate;
+}
+
+body::after {
+  background:
+    radial-gradient(circle at 40% 62%, var(--lg-orb-b) 0 5%, transparent 5.4%),
+    radial-gradient(circle at 88% 64%, var(--lg-orb-a) 0 10%, transparent 10.4%),
+    radial-gradient(circle at 10% 86%, var(--lg-orb-c) 0 11%, transparent 11.4%),
+    radial-gradient(45% 45% at 75% 35%, var(--lg-orb-c), transparent 70%);
+  animation: lg-drift-b calc(78s * var(--lg-speed)) ease-in-out infinite alternate-reverse;
+}
+
+@keyframes lg-drift-a {
+  0%   { transform: translate3d(-4%, -3%, 0) rotate(0deg) scale(1); }
+  50%  { transform: translate3d(5%, 4%, 0) rotate(16deg) scale(1.12); }
+  100% { transform: translate3d(-2%, 6%, 0) rotate(-10deg) scale(1.04); }
+}
+@keyframes lg-drift-b {
+  0%   { transform: translate3d(4%, 3%, 0) rotate(0deg) scale(1.06); }
+  50%  { transform: translate3d(-5%, -2%, 0) rotate(-14deg) scale(1); }
+  100% { transform: translate3d(3%, -5%, 0) rotate(12deg) scale(1.14); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before, body::after { animation: none; }
+}
+
+/* ==========================================================================
+   4. LIQUID GLASS  —  four tiers of depth
+   Tier 1 rail  >  tier 2 sidebars  >  tier 3 content  >  tier 4 floating
+   ========================================================================== */
+
+/* Server rail */
+nav:has([data-list-id="guildsnav"]) {
+  background: var(--lg-sheen), var(--lg-grain), var(--lg-fill-rail) !important;
+  backdrop-filter: blur(var(--lg-blur)) brightness(var(--lg-brightness));
+  box-shadow: var(--lg-edge);
+}
+
+/* Channel list and member list */
+[class*="sidebar_"]:not([class*="Region"]),
+[class*="membersWrap_"] {
+  background: var(--lg-sheen), var(--lg-grain), var(--lg-fill-side) !important;
+  backdrop-filter: blur(var(--lg-blur)) brightness(var(--lg-brightness));
+  box-shadow: var(--lg-edge);
+}
+
+/* Conversation, header, and the settings surface */
+[class*="chatContent_"],
+section[class*="title_"],
+[class*="standardSidebarView_"] {
+  background: var(--lg-sheen), var(--lg-grain), var(--lg-fill-main) !important;
+  backdrop-filter: blur(var(--lg-blur)) brightness(var(--lg-brightness));
+  box-shadow: var(--lg-edge);
+}
+section[class*="title_"] {
+  box-shadow: inset 0 1px 0 0 var(--lg-specular), 0 1px 0 0 var(--lg-hairline);
+}
+
+/* Floating: dialogs, menus, popouts, tooltips */
+[role="dialog"],
+div[role="menu"],
+[class*="popout_"],
+[class*="userPopoutOuter_"],
+[class*="userProfileOuter_"],
+[class*="tooltip_"]:not([class*="tooltipPointer_"]) {
+  background: var(--lg-sheen), var(--lg-grain), var(--lg-fill-float) !important;
+  backdrop-filter: blur(calc(var(--lg-blur) * 1.4)) brightness(var(--lg-brightness));
+  border: 0 !important;
+  border-radius: var(--lg-r-l) !important;
+  box-shadow: var(--lg-edge), var(--lg-lift) !important;
+}
+[class*="tooltip_"]:not([class*="tooltipPointer_"]) { border-radius: var(--lg-r-s) !important; }
+[class*="tooltipPointer_"] { display: none !important; }
+
+/* A settings screen is already a glass pane: do not double its fill */
+[role="dialog"]:has([class*="standardSidebarView_"]) {
+  background: none !important;
+  backdrop-filter: none;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+/* Dim and defocus whatever sits behind a modal */
+[class*="backdrop_"] {
+  background: rgb(var(--lg-bg) / 0.35) !important;
+  backdrop-filter: blur(8px);
+}
+
+/* The user panel floats on the channel list */
+section[class*="panels_"] {
+  background: var(--lg-sheen), var(--lg-grain), var(--lg-fill-float) !important;
+  backdrop-filter: blur(var(--lg-blur)) brightness(var(--lg-brightness));
+  border: 0 !important;
+  border-radius: var(--lg-r-l);
+  box-shadow: var(--lg-edge), var(--lg-lift);
+}
+
+/* Message field: a floating capsule */
+[class*="channelTextArea_"] [class*="scrollableContainer_"] {
+  background: var(--lg-sheen), var(--lg-grain), rgb(var(--lg-fg) / 0.08) !important;
+  backdrop-filter: blur(var(--lg-blur)) brightness(var(--lg-brightness));
+  border: 0 !important;
+  border-radius: 22px;
+  box-shadow: var(--lg-edge), 0 8px 24px -10px var(--lg-drop);
+  transition: box-shadow 0.35s var(--lg-ease);
+}
+[class*="channelTextArea_"] [class*="scrollableContainer_"]:focus-within {
+  box-shadow: var(--lg-edge), 0 0 0 3px rgb(var(--lg-fg) / 0.18), 0 8px 24px -10px var(--lg-drop);
+}
+
+/* Continuous corners where the engine supports them */
+@supports (corner-shape: squircle) {
+  [role="dialog"], div[role="menu"], [class*="popout_"],
+  [class*="userPopoutOuter_"], section[class*="panels_"],
+  [class*="channelTextArea_"] [class*="scrollableContainer_"],
+  [class*="interactive_"], [class*="embedWrapper_"],
+  input, textarea, button { corner-shape: squircle; }
+}
+
+/* ==========================================================================
+   5. TYPOGRAPHY  —  SF Pro on Apple systems, Inter everywhere else
+   ========================================================================== */
+
+html, body, button, input, textarea, select {
+  font-family: var(--lg-font) !important;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  letter-spacing: -0.011em;
+}
+[class*="messageContent_"] { font-size: 15px; line-height: 1.4; }
+[class*="username_"], [class*="header_"] h2, h1, h2, h3 { letter-spacing: -0.018em; }
+[class*="timestamp_"] { font-size: 11px; font-weight: 500; }
+code, pre, [class*="codeLine_"], [class*="hljs"] { font-family: var(--lg-mono) !important; letter-spacing: 0; }
+
+::selection { background: rgb(var(--lg-fg) / 0.28); }
+
+/* ==========================================================================
+   6. CONTROLS  —  44pt-feeling targets, capsules, quiet states
+   ========================================================================== */
+
+/* Channels, DMs, and members */
+[class*="interactive_"],
+[class*="member_"] {
+  border-radius: var(--lg-r-s) !important;
+  transition: background-color 0.25s var(--lg-ease), color 0.25s var(--lg-ease);
+}
+[class*="interactive_"][class*="modeSelected_"] {
+  background: rgb(var(--lg-fg) / 0.14) !important;
+  box-shadow: inset 0 1px 0 0 rgb(var(--lg-fg) / 0.10);
+}
+[class*="interactive_"][class*="modeSelected_"],
+[class*="interactive_"][class*="modeSelected_"] * { color: var(--lg-label) !important; }
+
+/* Server icons: app-icon squircles, not circles */
+[data-list-item-id^="guildsnav___"] [class*="childWrapper_"] {
+  border-radius: 30% !important;
+  transition: transform 0.35s var(--lg-ease), border-radius 0.35s var(--lg-ease), background-color 0.25s var(--lg-ease);
+}
+[data-list-item-id^="guildsnav___"]:hover [class*="childWrapper_"] { transform: scale(1.06); }
+[data-list-item-id^="guildsnav___"]:active [class*="childWrapper_"] { transform: scale(0.96); }
+
+/* Primary buttons: solid ink capsule with inverse text */
+[class*="lookFilled_"][class*="colorBrand_"],
+button[class*="colorBrand_"][class*="lookFilled_"] {
+  background: rgb(var(--lg-fg)) !important;
+  color: rgb(var(--lg-bg)) !important;
+  border-radius: 999px !important;
+  font-weight: 600;
+  transition: transform 0.25s var(--lg-ease), opacity 0.25s var(--lg-ease);
+}
+[class*="lookFilled_"][class*="colorBrand_"]:hover { opacity: 0.88; }
+[class*="lookFilled_"][class*="colorBrand_"]:active { transform: scale(0.97); }
+
+/* Secondary buttons: glass capsules */
+[class*="lookFilled_"][class*="colorPrimary_"],
+[class*="lookFilled_"][class*="colorGrey_"],
+[class*="lookFilled_"][class*="colorTransparent_"],
+[class*="lookOutlined_"] {
+  background: rgb(var(--lg-fg) / 0.12) !important;
+  color: var(--lg-label) !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  box-shadow: inset 0 1px 0 0 rgb(var(--lg-fg) / 0.14);
+}
+[class*="lookFilled_"][class*="colorPrimary_"]:hover,
+[class*="lookFilled_"][class*="colorGrey_"]:hover { background: rgb(var(--lg-fg) / 0.18) !important; }
+
+/* Destructive actions keep a hint of red (see --lg-danger) */
+[class*="lookFilled_"][class*="colorRed_"],
+[class*="lookFilled_"][class*="colorDanger_"] {
+  background: rgb(var(--lg-danger)) !important;
+  color: #fff !important;
+  border-radius: 999px !important;
+}
+[class*="colorDanger_"][role="menuitem"] { color: rgb(var(--lg-danger)) !important; }
+
+/* Menus */
+div[role="menu"] { padding: 6px !important; }
+div[role="menu"] [class*="item_"] { border-radius: 8px; }
+div[role="menu"] [class*="focused_"],
+div[role="menu"] [role="menuitem"]:hover {
+  background: rgb(var(--lg-fg) / 0.12) !important;
+  color: var(--lg-label) !important;
+}
+div[role="menu"] [class*="separator_"] { background: var(--lg-hairline) !important; }
+
+/* Inputs */
+input[type="text"], input[type="search"], input[type="password"], input[type="email"],
+input[type="number"], textarea, [class*="inputDefault_"], [class*="input_"][class*="container_"] {
+  background: rgb(var(--lg-fg) / 0.07) !important;
+  border: 0 !important;
+  border-radius: var(--lg-r-m) !important;
+  box-shadow: inset 0 0 0 1px var(--lg-hairline);
+  transition: box-shadow 0.3s var(--lg-ease);
+}
+input:focus, textarea:focus, [class*="inputDefault_"]:focus {
+  box-shadow: inset 0 0 0 1px var(--lg-hairline), 0 0 0 3px rgb(var(--lg-fg) / 0.18);
+}
+
+/* Mentions and badges */
+.mention, [class*="mention_"] {
+  background: rgb(var(--lg-fg) / 0.14) !important;
+  color: var(--lg-label) !important;
+  border-radius: 6px;
+  font-weight: 600;
+}
+[class*="numberBadge_"], [class*="lowerBadge_"] {
+  background: rgb(var(--lg-fg)) !important;
+  color: rgb(var(--lg-bg)) !important;
+}
+
+/* Embeds, replies, code */
+[class*="embedWrapper_"] {
+  background: rgb(var(--lg-fg) / 0.05) !important;
+  border: 0 !important;
+  border-radius: var(--lg-r-m) !important;
+  box-shadow: inset 0 0 0 1px var(--lg-hairline);
+}
+pre, [class*="codeContainer_"] {
+  background: rgb(var(--lg-fg) / 0.07) !important;
+  border: 0 !important;
+  border-radius: var(--lg-r-m) !important;
+}
+
+/* Keyboard focus stays visible, Apple style */
+:focus-visible { outline: 3px solid rgb(var(--lg-fg) / 0.5) !important; outline-offset: 2px; }
+
+/* Scrollbars: thin, overlay-like */
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent !important; border: 0 !important; }
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--lg-fg) / 0.26) !important;
+  border: 3px solid transparent !important;
+  background-clip: padding-box !important;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgb(var(--lg-fg) / 0.42) !important; background-clip: padding-box !important; }
+
+/* ==========================================================================
+   7. BOBOCORD  —  swap Discord branding for yours
+   CSS can only reach what is drawn on the page: logos, wordmarks and the
+   loading screen. The window title and taskbar text need a plugin.
+   ========================================================================== */
+
+/* Home button: hide the Discord logo, draw the mark instead */
+[data-list-item-id="guildsnav___home"] [class*="childWrapper_"] svg { display: none !important; }
+[data-list-item-id="guildsnav___home"] [class*="childWrapper_"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+[data-list-item-id="guildsnav___home"] [class*="childWrapper_"]::after {
+  content: var(--lg-brand-mark);
+  font: 700 24px/1 var(--lg-font);
+  letter-spacing: -0.04em;
+  color: var(--lg-label);
+  transform: translateY(-1px);
+}
+
+/* Title bar wordmark */
+[class*="wordmark_"] > * { display: none !important; }
+[class*="wordmark_"]::after {
+  content: var(--lg-brand-name);
+  font: 700 12px/1 var(--lg-font);
+  letter-spacing: -0.01em;
+  color: var(--lg-label-3);
+}
+
+/* In-app loading screen: hide the animated mascot, show the name */
+div:has(> video[src^="/assets/"]) > video[src^="/assets/"] { display: none !important; }
+div:has(> video[src^="/assets/"])::before {
+  content: var(--lg-brand-name);
+  display: block;
+  font: 700 34px/1.2 var(--lg-font);
+  letter-spacing: -0.03em;
+  color: var(--lg-label);
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+/* ==========================================================================
+   8. OPTIONAL  —  uncomment for strict monochrome media and role colours
+   ========================================================================== */
+
+/*
+[class*="avatar_"] img, [class*="emoji"], [class*="imageWrapper_"] img, [class*="embedWrapper_"] img {
+  filter: grayscale(1);
+}
+[class*="username_"][style*="color"], [class*="roleName_"], [class*="name_"][style*="color"] {
+  color: var(--lg-label) !important;
+}
+*/
